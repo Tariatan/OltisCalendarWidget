@@ -183,9 +183,18 @@ public class OltisCalendarWidget extends AppWidgetProvider
         int thisYear = sp.getInt(PREF_YEAR, cal.get(Calendar.YEAR));
         int selectedDay = sp.getInt(PREF_DAY_OF_YEAR, -1);
         Vector<DayClass> recentDays = getRecentDays(context, thisYear, thisMonth);
-
-        //Vector<DayClass> recentDays = new Vector<>();
-        //recentDays.add(new DayClass(thisYear, today));
+        if(recentDays.isEmpty())
+        {
+            recentDays = getRecentDays(context, thisYear, thisMonth - 1);
+        }
+        if(recentDays.isEmpty())
+        {
+            recentDays = getRecentDays(context, thisYear, thisMonth - 2);
+        }
+        if(recentDays.isEmpty())
+        {
+            recentDays = getRecentDays(context, thisYear, thisMonth - 3);
+        }
 
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.set(Calendar.MONTH, thisMonth);
@@ -235,16 +244,35 @@ public class OltisCalendarWidget extends AppWidgetProvider
             for (int day = 0; day < 7; day++)
             {
                 int dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
-                Calendar nextDayCal = Calendar.getInstance();
                 DayClass lastDay = new DayClass(0, 0);
                 if(recentDays.size() > 0)
                 {
                     lastDay = recentDays.get(recentDays.size() - 1);
                 }
+
+                Calendar nextDayCal = Calendar.getInstance();
                 nextDayCal.set(Calendar.YEAR, lastDay.Year);
                 nextDayCal.set(Calendar.DAY_OF_MONTH, 0);
                 nextDayCal.set(Calendar.MONTH, Calendar.JANUARY);
                 nextDayCal.add(Calendar.DAY_OF_MONTH, lastDay.DayOfYear + 27);
+
+                Calendar nextPredictDayCal1 = Calendar.getInstance();
+                nextPredictDayCal1.set(Calendar.YEAR, lastDay.Year);
+                nextPredictDayCal1.set(Calendar.DAY_OF_MONTH, 0);
+                nextPredictDayCal1.set(Calendar.MONTH, Calendar.JANUARY);
+                nextPredictDayCal1.add(Calendar.DAY_OF_MONTH, lastDay.DayOfYear + 27 * 2);
+
+                Calendar nextPredictDayCal2 = Calendar.getInstance();
+                nextPredictDayCal2.set(Calendar.YEAR, lastDay.Year);
+                nextPredictDayCal2.set(Calendar.DAY_OF_MONTH, 0);
+                nextPredictDayCal2.set(Calendar.MONTH, Calendar.JANUARY);
+                nextPredictDayCal2.add(Calendar.DAY_OF_MONTH, lastDay.DayOfYear + 27 * 3);
+
+                Calendar nextPredictDayCal3 = Calendar.getInstance();
+                nextPredictDayCal3.set(Calendar.YEAR, lastDay.Year);
+                nextPredictDayCal3.set(Calendar.DAY_OF_MONTH, 0);
+                nextPredictDayCal3.set(Calendar.MONTH, Calendar.JANUARY);
+                nextPredictDayCal3.add(Calendar.DAY_OF_MONTH, lastDay.DayOfYear + 27 * 4);
 
                 boolean inMonth = (cal.get(Calendar.MONTH) == thisMonth);
                 boolean inYear  = (cal.get(Calendar.YEAR) == todayYear);
@@ -265,11 +293,28 @@ public class OltisCalendarWidget extends AppWidgetProvider
                                      (cal.get(Calendar.MONTH)        == nextDayCal.get(Calendar.MONTH)) &&
                                      (cal.get(Calendar.DAY_OF_MONTH) == nextDayCal.get(Calendar.DAY_OF_MONTH)));
 
+                int dd  = cal.get(Calendar.DAY_OF_YEAR);
+                int ddp = nextPredictDayCal1.get(Calendar.DAY_OF_YEAR);
+                int ddn = nextDayCal.get(Calendar.DAY_OF_YEAR);
+                boolean isPredicted1 = ((cal.get(Calendar.YEAR)         == nextPredictDayCal1.get(Calendar.YEAR)) &&
+                                        (cal.get(Calendar.MONTH)        == nextPredictDayCal1.get(Calendar.MONTH)) &&
+                                        (cal.get(Calendar.DAY_OF_MONTH) == nextPredictDayCal1.get(Calendar.DAY_OF_MONTH)));
+
+                boolean isPredicted2 = ((cal.get(Calendar.YEAR)         == nextPredictDayCal2.get(Calendar.YEAR)) &&
+                                        (cal.get(Calendar.MONTH)        == nextPredictDayCal2.get(Calendar.MONTH)) &&
+                                        (cal.get(Calendar.DAY_OF_MONTH) == nextPredictDayCal2.get(Calendar.DAY_OF_MONTH)));
+
+                boolean isPredicted3 = ((cal.get(Calendar.YEAR)         == nextPredictDayCal3.get(Calendar.YEAR)) &&
+                                        (cal.get(Calendar.MONTH)        == nextPredictDayCal3.get(Calendar.MONTH)) &&
+                                        (cal.get(Calendar.DAY_OF_MONTH) == nextPredictDayCal3.get(Calendar.DAY_OF_MONTH)));
+
                 boolean isSelectedDay = (selectedDay == dayOfYear);
 
                 int cellLayoutResId;
 
-                if(isNextDay)
+
+
+                if(isNextDay || isPredicted1 || isPredicted2 || isPredicted3)
                 {
                     cellLayoutResId = isSelectedDay ? R.layout.cell_theday_selected : (isToday ? R.layout.cell_theday_today : R.layout.cell_theday);
                 }
